@@ -2,654 +2,386 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payslip Tracker</title>
-    <style>
-        :root {
-            --bg: #f6f8fa;
-            --card: #ffffff;
-            --border: #e2e6ea;
-            --text: #1f2933;
-            --text-muted: #7b8794;
-            --accent: #2f7d5b;
-            --accent-light: #e6f4ec;
-            --cash: #b6873a;
-            --cash-light: #f7efe0;
-            --payslip: #2f7d5b;
-            --payslip-light: #e6f4ec;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.04);
-            --radius: 12px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payslip Tracker</title>
+  <style>
+    :root {
+      --bg: #f6f8fa;
+      --card: #ffffff;
+      --border: #e2e6ea;
+      --text: #1f2933;
+      --text-muted: #7b8794;
+      --accent: #2f7d5b;
+      --accent-light: #e6f4ec;
+      --cash: #b6873a;
+      --cash-light: #f7efe0;
+      --payslip: #2f7d5b;
+      --payslip-light: #e6f4ec;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.04);
+      --radius: 12px;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            height: 58px;
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      height: 58px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-        .topbar h1 {
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
+    .topbar h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .topbar h1 span { color: var(--accent); }
 
-        .topbar h1 span {
-            color: var(--accent);
-        }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tabs button {
+      background: none; border: none; font-size: 14px; font-weight: 600;
+      color: var(--text-muted); padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    }
+    .nav-tabs button:hover { background: var(--bg); }
+    .nav-tabs button.active { color: var(--accent); background: var(--accent-light); }
 
-        .nav-tabs {
-            display: flex;
-            gap: 4px;
-        }
+    .gear {
+      background: none; border: 1px solid var(--border); color: var(--text-muted);
+      width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px;
+    }
+    .gear:hover { background: var(--bg); }
 
-        .nav-tabs button {
-            background: none;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+    .page { display: none; }
+    .page.show { display: block; }
+    .wrap { max-width: 620px; margin: 0 auto; padding: 28px 18px 80px; }
 
-        .nav-tabs button:hover {
-            background: var(--bg);
-        }
+    .eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 1.1px;
+      text-transform: uppercase; color: var(--accent);
+    }
 
-        .nav-tabs button.active {
-            color: var(--accent);
-            background: var(--accent-light);
-        }
+    .form-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 24px; margin-top: 14px;
+    }
 
-        .gear {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 7px;
+    }
 
-        .gear:hover {
-            background: var(--bg);
-        }
+    .field input[type="date"], .field select, .amount-input input {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border);
+      border-radius: 9px; background: var(--card); font-size: 15px;
+      color: var(--text); outline: none; font-family: inherit;
+    }
+    .field input:focus, .field select:focus, .amount-input input:focus { border-color: var(--accent); }
 
-        .page {
-            display: none;
-        }
+    .amount-input { position: relative; }
+    .amount-input .euro {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: var(--text-muted); pointer-events: none;
+    }
+    .amount-input input { padding-left: 30px; font-size: 20px; font-weight: 600; letter-spacing: 0.3px; }
+    .amount-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 
-        .page.show {
-            display: block;
-        }
+    .type-toggle { display: flex; gap: 8px; }
+    .type-toggle button {
+      flex: 1; padding: 11px; border: 1px solid var(--border); background: var(--card);
+      border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+    }
+    .type-toggle button.sel-payslip { background: var(--payslip-light); border-color: var(--payslip); color: var(--payslip); }
+    .type-toggle button.sel-cash { background: var(--cash-light); border-color: var(--cash); color: var(--cash); }
 
-        .wrap {
-            max-width: 620px;
-            margin: 0 auto;
-            padding: 28px 18px 80px;
-        }
+    .btn {
+      width: 100%; background: var(--accent); color: #fff; border: none; padding: 13px;
+      border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .eyebrow {
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1.1px;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
+    .save-msg {
+      text-align: center; font-size: 14px; font-weight: 600;
+      color: var(--accent); margin-top: 14px; min-height: 20px;
+    }
 
-        .form-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-            margin-top: 14px;
-        }
+    .sync-note { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 18px; }
+    .sync-note.connected { color: var(--accent); }
 
-        .field {
-            margin-bottom: 18px;
-        }
+    .hist-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 14px 0; gap: 10px; flex-wrap: wrap;
+    }
+    .hist-tools { display: flex; gap: 8px; }
+    .btn-ghost {
+      background: var(--card); color: var(--text-muted); border: 1px solid var(--border);
+      padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: auto;
+    }
+    .btn-ghost:hover { background: var(--bg); }
 
-        .field label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 7px;
-        }
+    .summary { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .summary-card {
+      flex: 1; min-width: 120px; background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .summary-card .label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .summary-card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
 
-        .field input[type="date"],
-        .field select,
-        .amount-input input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            background: var(--card);
-            font-size: 15px;
-            color: var(--text);
-            outline: none;
-            font-family: inherit;
-        }
+    .entry {
+      display: flex; align-items: center; gap: 12px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; margin-bottom: 8px;
+    }
+    .entry-date { font-size: 14px; font-weight: 600; min-width: 96px; }
+    .entry-type {
+      font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .type-payslip { background: var(--payslip-light); color: var(--payslip); }
+    .type-cash { background: var(--cash-light); color: var(--cash); }
+    .entry-amount { margin-left: auto; font-size: 16px; font-weight: 700; }
+    .entry-del {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 16px; padding: 2px 4px; border-radius: 6px; line-height: 1;
+    }
+    .entry-del:hover { color: #d14343; background: #fbeaea; }
 
-        .field input:focus,
-        .field select:focus,
-        .amount-input input:focus {
-            border-color: var(--accent);
-        }
+    .empty { text-align: center; color: var(--text-muted); padding: 50px 20px; font-size: 15px; line-height: 1.6; }
 
-        .amount-input {
-            position: relative;
-        }
-
-        .amount-input .euro {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            color: var(--text-muted);
-            pointer-events: none;
-        }
-
-        .amount-input input {
-            padding-left: 30px;
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .amount-hint {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
-
-        .type-toggle {
-            display: flex;
-            gap: 8px;
-        }
-
-        .type-toggle button {
-            flex: 1;
-            padding: 11px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            border-radius: 9px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .type-toggle button.sel-payslip {
-            background: var(--payslip-light);
-            border-color: var(--payslip);
-            color: var(--payslip);
-        }
-
-        .type-toggle button.sel-cash {
-            background: var(--cash-light);
-            border-color: var(--cash);
-            color: var(--cash);
-        }
-
-        .btn {
-            width: 100%;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 13px;
-            border-radius: 9px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.15s;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .save-msg {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent);
-            margin-top: 14px;
-            min-height: 20px;
-        }
-
-        .sync-note {
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 18px;
-        }
-
-        .sync-note.connected {
-            color: var(--accent);
-        }
-
-        .hist-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 14px 0;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .hist-tools {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-ghost {
-            background: var(--card);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            width: auto;
-        }
-
-        .btn-ghost:hover {
-            background: var(--bg);
-        }
-
-        .summary {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .summary-card {
-            flex: 1;
-            min-width: 120px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 16px;
-        }
-
-        .summary-card .label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .summary-card .value {
-            font-size: 20px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        .entry {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 13px 15px;
-            margin-bottom: 8px;
-        }
-
-        .entry-date {
-            font-size: 14px;
-            font-weight: 600;
-            min-width: 96px;
-        }
-
-        .entry-type {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 9px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        .type-payslip {
-            background: var(--payslip-light);
-            color: var(--payslip);
-        }
-
-        .type-cash {
-            background: var(--cash-light);
-            color: var(--cash);
-        }
-
-        .entry-amount {
-            margin-left: auto;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .entry-del {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 2px 4px;
-            border-radius: 6px;
-            line-height: 1;
-        }
-
-        .entry-del:hover {
-            color: #d14343;
-            background: #fbeaea;
-        }
-
-        .empty {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 50px 20px;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-        }
-
-        .overlay.open {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--card);
-            border-radius: 14px;
-            padding: 26px;
-            width: 100%;
-            max-width: 460px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
-        }
-
-        .modal h3 {
-            font-size: 18px;
-            margin-bottom: 6px;
-        }
-
-        .modal p {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .modal .field {
-            margin-bottom: 14px;
-        }
-
-        .modal input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            background: var(--card);
-            color: var(--text);
-            outline: none;
-        }
-
-        .modal input:focus {
-            border-color: var(--accent);
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .modal-actions .btn,
-        .modal-actions .btn-ghost {
-            width: auto;
-            padding: 10px 16px;
-        }
-
-        code {
-            background: var(--bg);
-            padding: 1px 5px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-    </style>
+    .overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
+      z-index: 100; align-items: center; justify-content: center; padding: 18px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--card); border-radius: 14px; padding: 26px; width: 100%;
+      max-width: 460px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+    }
+    .modal h3 { font-size: 18px; margin-bottom: 6px; }
+    .modal p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+    .modal .field { margin-bottom: 14px; }
+    .modal input {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 14px; background: var(--card); color: var(--text); outline: none;
+    }
+    .modal input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+    .modal-actions .btn, .modal-actions .btn-ghost { width: auto; padding: 10px 16px; }
+    code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  </style>
 </head>
 
 <body>
 
-    <div class="topbar">
-        <h1>Payslip <span>Tracker</span></h1>
-        <nav class="nav-tabs">
-            <button data-view="log" class="active" onclick="setView('log')">Log</button>
-            <button data-view="history" onclick="setView('history')">History</button>
-        </nav>
-        <button class="gear" onclick="openSetup()" title="Connect Google Sheet">⚙</button>
-    </div>
+  <div class="topbar">
+    <h1>Payslip <span>Tracker</span></h1>
+    <nav class="nav-tabs">
+      <button data-view="log" class="active" onclick="setView('log')">Log</button>
+      <button data-view="history" onclick="setView('history')">History</button>
+    </nav>
+    <button class="gear" onclick="openSetup()" title="Connect Google Sheet">⚙</button>
+  </div>
 
-    <!-- LOG PAGE -->
-    <div id="viewLog" class="page show">
-        <div class="wrap">
-            <span class="eyebrow">Log a payment</span>
-            <div class="form-card">
-                <div class="field">
-                    <label for="dateInput">Date</label>
-                    <input type="date" id="dateInput">
-                </div>
-
-                <div class="field">
-                    <label for="amountInput">Amount (EUR)</label>
-                    <div class="amount-input">
-                        <span class="euro">€</span>
-                        <input type="text" id="amountInput" inputmode="numeric" placeholder="0.00" autocomplete="off">
-                    </div>
-                    <div class="amount-hint">Just type the digits — the last two become cents. e.g. <code>24156</code> →
-                        €241.56</div>
-                </div>
-
-                <div class="field">
-                    <label>Type</label>
-                    <div class="type-toggle">
-                        <button id="btnPayslip" class="sel-payslip" onclick="setType('payslip')">Payslip</button>
-                        <button id="btnCash" onclick="setType('cash')">Cash</button>
-                    </div>
-                </div>
-
-                <button class="btn" id="saveBtn" onclick="saveEntry()">Save</button>
-                <div class="save-msg" id="saveMsg"></div>
-            </div>
-            <div class="sync-note" id="syncNote">Not connected — saving on this device only. Tap ⚙ to connect your
-                Google Sheet.</div>
+  <!-- LOG PAGE -->
+  <div id="viewLog" class="page show">
+    <div class="wrap">
+      <span class="eyebrow">Log a payment</span>
+      <div class="form-card">
+        <div class="field">
+          <label for="dateInput">Date</label>
+          <input type="date" id="dateInput">
         </div>
-    </div>
 
-    <!-- HISTORY PAGE -->
-    <div id="viewHistory" class="page">
-        <div class="wrap">
-            <div class="hist-head">
-                <span class="eyebrow">Payment history</span>
-                <div class="hist-tools">
-                    <button class="btn-ghost" onclick="reloadFromSheet()">↻ Refresh</button>
-                    <button class="btn-ghost" onclick="exportJson()">⬇ Export</button>
-                    <button class="btn-ghost" onclick="document.getElementById('importFile').click()">⬆ Import</button>
-                    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJson(event)">
-                </div>
-            </div>
-            <div class="summary" id="summary"></div>
-            <div id="entryList"></div>
+        <div class="field">
+          <label for="amountInput">Amount (EUR)</label>
+          <div class="amount-input">
+            <span class="euro">€</span>
+            <input type="text" id="amountInput" inputmode="numeric" placeholder="0.00" autocomplete="off">
+          </div>
+          <div class="amount-hint">Just type the digits — the last two become cents. e.g. <code>24156</code> → €241.56</div>
         </div>
-    </div>
 
-    <!-- SHEET SETUP MODAL -->
-    <div class="overlay" id="setupModal">
-        <div class="modal">
-            <h3>⚙ Connect Google Sheet</h3>
-            <p>Paste the <strong>Web App URL</strong> from your Apps Script deployment (it ends in <code>/exec</code>).
-                Your payments will be saved to the Sheet and loaded from it on any device.
-                Treat this URL like a password — keep it private.</p>
-            <div class="field">
-                <label>Web App URL</label>
-                <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
-                    autocomplete="off">
-            </div>
-            <div class="modal-actions">
-                <button class="btn-ghost" onclick="closeSetup()">Cancel</button>
-                <button class="btn" onclick="saveSetup()">Save &amp; Connect</button>
-            </div>
+        <div class="field">
+          <label>Type</label>
+          <div class="type-toggle">
+            <button id="btnPayslip" class="sel-payslip" onclick="setType('payslip')">Payslip</button>
+            <button id="btnCash" onclick="setType('cash')">Cash</button>
+          </div>
         </div>
+
+        <button class="btn" id="saveBtn" onclick="saveEntry()">Save</button>
+        <div class="save-msg" id="saveMsg"></div>
+      </div>
+      <div class="sync-note" id="syncNote">Not connected — saving on this device only. Tap ⚙ to connect your Google Sheet.</div>
     </div>
+  </div>
 
-    <script>
-        // ─── STATE ───────────────────────────────────────────────
-        let entries = [];
-        let currentType = 'payslip';
-        let rawDigits = '';
-        let sheetUrl = '';
+  <!-- HISTORY PAGE -->
+  <div id="viewHistory" class="page">
+    <div class="wrap">
+      <div class="hist-head">
+        <span class="eyebrow">Payment history</span>
+        <div class="hist-tools">
+          <button class="btn-ghost" onclick="reloadFromSheet()">↻ Refresh</button>
+          <button class="btn-ghost" onclick="exportJson()">⬇ Export</button>
+          <button class="btn-ghost" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJson(event)">
+        </div>
+      </div>
+      <div class="summary" id="summary"></div>
+      <div id="entryList"></div>
+    </div>
+  </div>
 
-        const STORAGE_KEY = 'payslip_tracker_data';
-        const URL_KEY = 'payslip_tracker_sheet_url';
+  <!-- SHEET SETUP MODAL -->
+  <div class="overlay" id="setupModal">
+    <div class="modal">
+      <h3>⚙ Connect Google Sheet</h3>
 
-        // ─── UTILS ────────────────────────────────────────────────
-        function uid() { return 'p_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+      <div id="setupConnected" style="display:none;">
+        <p style="color:var(--accent);font-weight:600;">✓ Connected to your Google Sheet.<br>The link is hidden for privacy.</p>
+        <div class="modal-actions" style="justify-content:space-between;">
+          <button class="btn-ghost" onclick="disconnectSheet()">Disconnect</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-ghost" onclick="showUrlField()">Change link</button>
+            <button class="btn" onclick="closeSetup()">Done</button>
+          </div>
+        </div>
+      </div>
 
-        function centsToEuro(cents) {
-            return '€' + (cents / 100).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-        function amtCents(amount) { return Math.round(amount * 100); }
+      <div id="setupForm">
+        <p>Paste the <strong>Web App URL</strong> from your Apps Script deployment (it ends in <code>/exec</code>).
+          Your payments will be saved to the Sheet and loaded from it on any device.
+          Treat this URL like a password — keep it private.</p>
+        <div class="field">
+          <label>Web App URL</label>
+          <input type="password" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost" onclick="closeSetup()">Cancel</button>
+          <button class="btn" onclick="saveSetup()">Save &amp; Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function formatDate(iso) {
-            const d = new Date(iso + 'T00:00:00');
-            if (isNaN(d)) return iso;
-            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        }
-        function todayIso() {
-            const d = new Date();
-            const off = d.getTimezoneOffset();
-            return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
-        }
+  <script>
+    // ─── STATE ───────────────────────────────────────────────
+    let entries = [];
+    let currentType = 'payslip';
+    let rawDigits = '';
+    let sheetUrl = '';
 
-        // ─── AMOUNT INPUT (auto-decimal) ──────────────────────────
-        function displayAmount() {
-            if (!rawDigits) return '';
-            return (parseInt(rawDigits, 10) / 100).toFixed(2);
-        }
-        function onAmountInput(e) {
-            let digits = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
-            rawDigits = digits;
-            e.target.value = displayAmount();
-        }
+    const STORAGE_KEY = 'payslip_tracker_data';
+    const URL_KEY = 'payslip_tracker_sheet_url';
 
-        // ─── TYPE TOGGLE ──────────────────────────────────────────
-        function setType(t) {
-            currentType = t;
-            document.getElementById('btnPayslip').className = t === 'payslip' ? 'sel-payslip' : '';
-            document.getElementById('btnCash').className = t === 'cash' ? 'sel-cash' : '';
-        }
+    // ─── UTILS ────────────────────────────────────────────────
+    function uid() { return 'p_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
 
-        // ─── VIEW SWITCH ──────────────────────────────────────────
-        function setView(v) {
-            document.getElementById('viewLog').classList.toggle('show', v === 'log');
-            document.getElementById('viewHistory').classList.toggle('show', v === 'history');
-            document.querySelectorAll('.nav-tabs button').forEach(b =>
-                b.classList.toggle('active', b.dataset.view === v));
-            if (v === 'history') renderHistory();
-        }
+    function centsToEuro(cents) {
+      return '€' + (cents / 100).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function amtCents(amount) { return Math.round(amount * 100); }
 
-        // ─── SAVE ENTRY ───────────────────────────────────────────
-        function saveEntry() {
-            const date = document.getElementById('dateInput').value;
-            if (!date) { flash('Please choose a date.', true); return; }
-            if (!rawDigits || parseInt(rawDigits, 10) === 0) { flash('Please enter an amount.', true); return; }
+    function formatDate(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    function todayIso() {
+      const d = new Date();
+      const off = d.getTimezoneOffset();
+      return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+    }
 
-            const entry = {
-                id: uid(),
-                date: date,
-                amount: parseInt(rawDigits, 10) / 100,
-                type: currentType,
-                created_at: new Date().toISOString()
-            };
-            entries.push(entry);
-            saveLocal();
-            pushAdd(entry);
+    // ─── AMOUNT INPUT (auto-decimal) ──────────────────────────
+    function displayAmount() {
+      if (!rawDigits) return '';
+      return (parseInt(rawDigits, 10) / 100).toFixed(2);
+    }
+    function onAmountInput(e) {
+      let digits = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+      rawDigits = digits;
+      e.target.value = displayAmount();
+    }
 
-            flash('Saved ' + centsToEuro(parseInt(rawDigits, 10)) + ' (' + currentType + ') on ' + formatDate(date));
+    // ─── TYPE TOGGLE ──────────────────────────────────────────
+    function setType(t) {
+      currentType = t;
+      document.getElementById('btnPayslip').className = t === 'payslip' ? 'sel-payslip' : '';
+      document.getElementById('btnCash').className = t === 'cash' ? 'sel-cash' : '';
+    }
 
-            rawDigits = '';
-            document.getElementById('amountInput').value = '';
-            setType('payslip');
-            document.getElementById('amountInput').focus();
-        }
+    // ─── VIEW SWITCH ──────────────────────────────────────────
+    function setView(v) {
+      document.getElementById('viewLog').classList.toggle('show', v === 'log');
+      document.getElementById('viewHistory').classList.toggle('show', v === 'history');
+      document.querySelectorAll('.nav-tabs button').forEach(b =>
+        b.classList.toggle('active', b.dataset.view === v));
+      if (v === 'history') renderHistory();
+    }
 
-        function flash(msg, isError) {
-            const el = document.getElementById('saveMsg');
-            el.textContent = msg;
-            el.style.color = isError ? '#d14343' : 'var(--accent)';
-            clearTimeout(flash._t);
-            flash._t = setTimeout(() => { el.textContent = ''; }, 4500);
-        }
+    // ─── SAVE ENTRY ───────────────────────────────────────────
+    function saveEntry() {
+      const date = document.getElementById('dateInput').value;
+      if (!date) { flash('Please choose a date.', true); return; }
+      if (!rawDigits || parseInt(rawDigits, 10) === 0) { flash('Please enter an amount.', true); return; }
 
-        // ─── HISTORY ──────────────────────────────────────────────
-        function renderHistory() {
-            const list = document.getElementById('entryList');
-            const summary = document.getElementById('summary');
+      const entry = {
+        id: uid(),
+        date: date,
+        amount: parseInt(rawDigits, 10) / 100,
+        type: currentType,
+        created_at: new Date().toISOString()
+      };
+      entries.push(entry);
+      saveLocal();
+      pushAdd(entry);
 
-            if (!entries.length) {
-                summary.innerHTML = '';
-                list.innerHTML = '<div class="empty">No payments logged yet.<br>Go to the Log tab to add your first one.</div>';
-                return;
-            }
+      flash('Saved ' + centsToEuro(parseInt(rawDigits, 10)) + ' (' + currentType + ') on ' + formatDate(date));
 
-            const sorted = [...entries].sort((a, b) =>
-                b.date.localeCompare(a.date) || (b.created_at || '').localeCompare(a.created_at || ''));
+      rawDigits = '';
+      document.getElementById('amountInput').value = '';
+      setType('payslip');
+      document.getElementById('amountInput').focus();
+    }
 
-            let tP = 0, tC = 0;
-            entries.forEach(e => { if (e.type === 'cash') tC += e.amount; else tP += e.amount; });
+    function flash(msg, isError) {
+      const el = document.getElementById('saveMsg');
+      el.textContent = msg;
+      el.style.color = isError ? '#d14343' : 'var(--accent)';
+      clearTimeout(flash._t);
+      flash._t = setTimeout(() => { el.textContent = ''; }, 4500);
+    }
 
-            summary.innerHTML = `
+    // ─── HISTORY ──────────────────────────────────────────────
+    function renderHistory() {
+      const list = document.getElementById('entryList');
+      const summary = document.getElementById('summary');
+
+      if (!entries.length) {
+        summary.innerHTML = '';
+        list.innerHTML = '<div class="empty">No payments logged yet.<br>Go to the Log tab to add your first one.</div>';
+        return;
+      }
+
+      const sorted = [...entries].sort((a, b) =>
+        b.date.localeCompare(a.date) || (b.created_at || '').localeCompare(a.created_at || ''));
+
+      let tP = 0, tC = 0;
+      entries.forEach(e => { if (e.type === 'cash') tC += e.amount; else tP += e.amount; });
+
+      summary.innerHTML = `
         <div class="summary-card">
           <div class="label">Total payslip</div>
           <div class="value" style="color:var(--payslip)">${centsToEuro(amtCents(tP))}</div>
@@ -663,141 +395,157 @@
           <div class="value">${entries.length}</div>
         </div>`;
 
-            list.innerHTML = sorted.map(e => `
+      list.innerHTML = sorted.map(e => `
         <div class="entry">
           <span class="entry-date">${formatDate(e.date)}</span>
           <span class="entry-type type-${e.type}">${e.type}</span>
           <span class="entry-amount">${centsToEuro(amtCents(e.amount))}</span>
           <button class="entry-del" onclick="deleteEntry('${e.id}')" title="Delete">✕</button>
         </div>`).join('');
-        }
+    }
 
-        function deleteEntry(id) {
-            const e = entries.find(x => x.id === id);
-            if (!e) return;
-            if (!confirm(`Delete ${centsToEuro(amtCents(e.amount))} (${e.type}) on ${formatDate(e.date)}?`)) return;
-            entries = entries.filter(x => x.id !== id);
-            saveLocal();
-            pushDelete(id);
-            renderHistory();
-        }
+    function deleteEntry(id) {
+      const e = entries.find(x => x.id === id);
+      if (!e) return;
+      if (!confirm(`Delete ${centsToEuro(amtCents(e.amount))} (${e.type}) on ${formatDate(e.date)}?`)) return;
+      entries = entries.filter(x => x.id !== id);
+      saveLocal();
+      pushDelete(id);
+      renderHistory();
+    }
 
-        // ─── EXPORT / IMPORT ──────────────────────────────────────
-        function exportJson() {
-            const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'payslips.json'; a.click();
-            URL.revokeObjectURL(url);
-        }
-        function importJson(ev) {
-            const file = ev.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                try {
-                    const data = JSON.parse(reader.result);
-                    if (!Array.isArray(data)) throw new Error('Not a list');
-                    entries = data;
-                    saveLocal();
-                    pushReplaceAll();
-                    renderHistory();
-                    alert('Imported ' + data.length + ' entries.');
-                } catch (e) { alert('Could not read that file: ' + e.message); }
-            };
-            reader.readAsText(file);
-            ev.target.value = '';
-        }
+    // ─── EXPORT / IMPORT ──────────────────────────────────────
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'payslips.json'; a.click();
+      URL.revokeObjectURL(url);
+    }
+    function importJson(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!Array.isArray(data)) throw new Error('Not a list');
+          entries = data;
+          saveLocal();
+          pushReplaceAll();
+          renderHistory();
+          alert('Imported ' + data.length + ' entries.');
+        } catch (e) { alert('Could not read that file: ' + e.message); }
+      };
+      reader.readAsText(file);
+      ev.target.value = '';
+    }
 
-        // ─── LOCAL STORAGE ────────────────────────────────────────
-        function saveLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
+    // ─── LOCAL STORAGE ────────────────────────────────────────
+    function saveLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
 
-        // ─── GOOGLE SHEET SYNC ────────────────────────────────────
-        function loadUrl() {
-            sheetUrl = localStorage.getItem(URL_KEY) || '';
-            updateSyncNote();
-        }
-        function updateSyncNote() {
-            const el = document.getElementById('syncNote');
-            if (sheetUrl) {
-                el.textContent = '✓ Connected to your Google Sheet — changes sync automatically.';
-                el.className = 'sync-note connected';
-            } else {
-                el.textContent = 'Not connected — saving on this device only. Tap ⚙ to connect your Google Sheet.';
-                el.className = 'sync-note';
-            }
-        }
+    // ─── GOOGLE SHEET SYNC ────────────────────────────────────
+    function loadUrl() {
+      sheetUrl = localStorage.getItem(URL_KEY) || '';
+      updateSyncNote();
+    }
+    function updateSyncNote() {
+      const el = document.getElementById('syncNote');
+      if (sheetUrl) {
+        el.textContent = '✓ Connected to your Google Sheet — changes sync automatically.';
+        el.className = 'sync-note connected';
+      } else {
+        el.textContent = 'Not connected — saving on this device only. Tap ⚙ to connect your Google Sheet.';
+        el.className = 'sync-note';
+      }
+    }
 
-        function openSetup() {
-            document.getElementById('sheetUrlInput').value = sheetUrl || '';
-            document.getElementById('setupModal').classList.add('open');
-        }
-        function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
+    function openSetup() {
+      const connected = !!sheetUrl;
+      document.getElementById('setupConnected').style.display = connected ? 'block' : 'none';
+      document.getElementById('setupForm').style.display = connected ? 'none' : 'block';
+      document.getElementById('sheetUrlInput').value = '';
+      document.getElementById('setupModal').classList.add('open');
+    }
+    function showUrlField() {
+      document.getElementById('setupConnected').style.display = 'none';
+      document.getElementById('setupForm').style.display = 'block';
+      document.getElementById('sheetUrlInput').value = '';
+      document.getElementById('sheetUrlInput').focus();
+    }
+    function disconnectSheet() {
+      if (!confirm('Disconnect from your Google Sheet? Your data stays safe in the Sheet and on this device, but new changes will not sync until you reconnect.')) return;
+      sheetUrl = '';
+      localStorage.removeItem(URL_KEY);
+      updateSyncNote();
+      closeSetup();
+    }
+    function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
 
-        async function saveSetup() {
-            const url = document.getElementById('sheetUrlInput').value.trim();
-            if (!url || !url.includes('/exec')) { alert('Please paste the Web App URL that ends in /exec'); return; }
-            sheetUrl = url;
-            localStorage.setItem(URL_KEY, sheetUrl);
-            closeSetup();
-            updateSyncNote();
-            await loadFromSheet();
-            flash('Connected to your Google Sheet.');
-            if (document.getElementById('viewHistory').classList.contains('show')) renderHistory();
-        }
+    async function saveSetup() {
+      const url = document.getElementById('sheetUrlInput').value.trim();
+      if (!url || !url.includes('/exec')) { alert('Please paste the Web App URL that ends in /exec'); return; }
+      sheetUrl = url;
+      localStorage.setItem(URL_KEY, sheetUrl);
+      closeSetup();
+      updateSyncNote();
+      await loadFromSheet();
+      flash('Connected to your Google Sheet.');
+      if (document.getElementById('viewHistory').classList.contains('show')) renderHistory();
+    }
 
-        function post(payload) {
-            if (!sheetUrl) return Promise.resolve();
-            return fetch(sheetUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            });
-        }
+    function post(payload) {
+      if (!sheetUrl) return Promise.resolve();
+      return fetch(sheetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+    }
 
-        async function pushAdd(entry) {
-            if (!sheetUrl) return;
-            try { await post({ action: 'add', entry }); }
-            catch (e) { flash('Saved on this device, but could not reach the Sheet. Use Refresh later.', true); }
-        }
-        async function pushDelete(id) {
-            if (!sheetUrl) return;
-            try { await post({ action: 'delete', id }); } catch (e) { console.error(e); }
-        }
-        async function pushReplaceAll() {
-            if (!sheetUrl) return;
-            try { await post({ action: 'replace_all', entries }); } catch (e) { console.error(e); }
-        }
+    async function pushAdd(entry) {
+      if (!sheetUrl) return;
+      try { await post({ action: 'add', entry }); }
+      catch (e) { flash('Saved on this device, but could not reach the Sheet. Use Refresh later.', true); }
+    }
+    async function pushDelete(id) {
+      if (!sheetUrl) return;
+      try { await post({ action: 'delete', id }); } catch (e) { console.error(e); }
+    }
+    async function pushReplaceAll() {
+      if (!sheetUrl) return;
+      try { await post({ action: 'replace_all', entries }); } catch (e) { console.error(e); }
+    }
 
-        async function loadFromSheet() {
-            if (!sheetUrl) return;
-            try {
-                const r = await fetch(sheetUrl);
-                if (!r.ok) return;
-                const remote = await r.json();
-                if (Array.isArray(remote)) { entries = remote; saveLocal(); }
-            } catch (e) { console.error('Sheet load failed', e); }
-        }
+    async function loadFromSheet() {
+      if (!sheetUrl) return;
+      try {
+        const r = await fetch(sheetUrl);
+        if (!r.ok) return;
+        const remote = await r.json();
+        if (Array.isArray(remote)) { entries = remote; saveLocal(); }
+      } catch (e) { console.error('Sheet load failed', e); }
+    }
 
-        async function reloadFromSheet() {
-            if (!sheetUrl) { alert('Connect your Google Sheet first (⚙).'); return; }
-            await loadFromSheet();
-            renderHistory();
-        }
+    async function reloadFromSheet() {
+      if (!sheetUrl) { alert('Connect your Google Sheet first (⚙).'); return; }
+      await loadFromSheet();
+      renderHistory();
+    }
 
-        // ─── INIT ─────────────────────────────────────────────────
-        async function init() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            entries = stored ? JSON.parse(stored) : [];
-            document.getElementById('dateInput').value = todayIso();
-            document.getElementById('amountInput').addEventListener('input', onAmountInput);
-            setType('payslip');
-            loadUrl();
-            await loadFromSheet();
-        }
+    // ─── INIT ─────────────────────────────────────────────────
+    async function init() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      entries = stored ? JSON.parse(stored) : [];
+      document.getElementById('dateInput').value = todayIso();
+      document.getElementById('amountInput').addEventListener('input', onAmountInput);
+      setType('payslip');
+      loadUrl();
+      await loadFromSheet();
+    }
 
-        init();
-    </script>
+    init();
+  </script>
 </body>
 
 </html>
